@@ -12,7 +12,7 @@
 #include "input_output.h"
 
 
-#define TESTS
+//#define TESTS
 #ifdef TESTS
     #include "tests.h"
 #endif
