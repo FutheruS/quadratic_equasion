@@ -1,11 +1,20 @@
-///\file
+/** \file
+    \brief Contains basic structs of equation
+    \authors FutheruS
+    \version 0.1
+    \date 09/01/2021
+*/
 #ifndef EQUATION_H
 #define EQUATION_H
 
-const size_t COEFFS_AMOUNT = 3;                     /**< \brief Amount of coefficients in equation
-                                                        \warning Only COEFFS_AMOUNT == 3 is valid
-                                                    */
-const size_t ROOTS_AMOUNT = COEFFS_AMOUNT - 1;      ///< \brief Amount of roots in equation
+#include <stddef.h>
+/** \brief Amount of coefficients in equation
+    \warning Only COEFFS_AMOUNT == 3 is valid
+*/
+const size_t COEFFS_AMOUNT = 3;
+
+/// \brief Amount of roots in equation
+const size_t ROOTS_AMOUNT = COEFFS_AMOUNT - 1;
 
 enum NumOfRts {
     ZERO = 0,
@@ -25,6 +34,7 @@ struct Equation_coeffs
 struct Equation_roots
 {
     NumOfRts n_roots = NumOfRts::ZERO;
+    bool is_finite[ROOTS_AMOUNT] = {0};
     double arr[ROOTS_AMOUNT] = {0};
 };
 

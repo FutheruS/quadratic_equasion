@@ -1,4 +1,3 @@
-///\file
 #include "UI.h"
 
 int main()
@@ -16,7 +15,6 @@ int main()
         printf("Error: output file cannot be opened");
         return 0;
     }
-
     quadr_eq_client(infile_ptr, outfile_ptr);
 
     return 0;

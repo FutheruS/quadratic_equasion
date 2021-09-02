@@ -1,46 +1,68 @@
-///\file
 #include "solve.h"
+#include "math.h"
 
 #define C coeffs->arr[0]
 #define B coeffs->arr[1]
 #define A coeffs->arr[2]
 #define X1 &(roots->arr[0])
+#define X1_FIN &(roots->is_finite[0])
 #define X2 &(roots->arr[1])
+#define X2_FIN &(roots->is_finite[1])
 #define N_ROOTS &(roots->n_roots)
 
-/// Discriminant of quadratic equation
+int cmp(double a, double b)
+{
+    double diff = a - b;
+
+    if(fabs(diff) < PRECISION)
+        return 0;
+    if(diff < 0)
+        return -1;
+
+    return 1;
+}
+
 double discriminant(const Equation_coeffs* coeffs)
 {
     return B * B - 4 * A * C;
 }
 
-/** \brief Solves linear equation ax+b=0
-    \return Returns root.
-            If a == 0 && b == 0 returns NAN
-            If a == 0 && b != 0 returns INFINITY or -INFINITY (depending on sign of b)
-*/
-double solve_lin_eq(double a, double b)
+void solve_lin_eq(double a, double b, double* root)
 {
-    if(a == 0)
-        return (b < 0) ? INFINITY : (b > 0) ? -INFINITY : NAN;
-    return -b / a;
+    assert(root);
+
+    if(cmp(a, 0) == 0)
+    {
+        if(cmp(b, 0) < 0)
+            *root = INFINITY;
+        else if (cmp(b, 0) > 0)
+            *root = -INFINITY;
+        else if (cmp(b, 0) == 0)
+            *root = NAN;
+
+        return;
+    }
+    if(cmp(b, 0) == 0)
+    {
+        *root = 0;
+
+        return;
+    }
+
+    *root = -b / a;
+
+    return;
 }
 
-/** \brief Solves quadratic equation
-    \param coeffs Provides reading coeffs of equation
-    \param roots Provides writing roots of equation and their number
-    \warning Uses macros in solve.cpp
-*/
 void solve_quadr_eq(const Equation_coeffs* coeffs, Equation_roots* roots)
 {
     assert(coeffs && roots);
 
-
-    if(A == 0)
+    if(cmp(A, 0) == 0)
     {
-        if(B == 0)
+        if(cmp(B, 0) == 0)
         {
-            if(C == 0)
+            if(cmp(C, 0) == 0)
             {
                 *N_ROOTS = NumOfRts::INF;
 
@@ -55,46 +77,69 @@ void solve_quadr_eq(const Equation_coeffs* coeffs, Equation_roots* roots)
         }
         else
         {
-            *X1 = solve_lin_eq(B, C);
+            solve_lin_eq(B, C, X1);
+            *X1_FIN = isfinite(*X1);
             *N_ROOTS = NumOfRts::ONE;
+
 
             return;
         }
     }
 
-    if(C == 0)
+    if(cmp(C, 0) == 0)
     {
         *X1 = 0;
-        *X2 = solve_lin_eq(A, B);
+
+        solve_lin_eq(A, B, X2);
+
+        if(cmp(*X1, *X2) == 0)
+        {
+            *N_ROOTS = NumOfRts::ONE;
+
+            return;
+        }
+
+        *X1_FIN = isfinite(*X1);
+        *X2_FIN = isfinite(*X2);
         *N_ROOTS = NumOfRts::TWO;
+
         return;
     }
 
     double discr = discriminant(coeffs);
 
-    if(discr < 0)
+    if(cmp(discr, 0) < 0)
     {
         *N_ROOTS = NumOfRts::ZERO;
 
         return;
     }
-    if(discr == 0)
+    if(cmp(discr, 0) == 0)
     {
-        *X1 = -B / (2 * A);
+        solve_lin_eq(2 * A, B, X1);
+        *X1_FIN = isfinite(*X1);
         *N_ROOTS = NumOfRts::ONE;
 
         return;
     }
 
-    *X1 = (-B + sqrt(discr)) / (2 * A);
-    *X2 = (-B - sqrt(discr)) / (2 * A);
+    solve_lin_eq(2 * A, B - sqrt(discr), X1);
+    solve_lin_eq(2 * A, B + sqrt(discr), X2);
     *N_ROOTS = NumOfRts::TWO;
+
+    *X1_FIN = isfinite(*X1);
+    *X2_FIN = isfinite(*X2);
 
     return;
 }
+
+
 
 #undef A;
 #undef B;
 #undef C;
 #undef X1;
 #undef X2;
+#undef X1_FIN;
+#undef X2_FIN;
+#undef N_ROOTS;

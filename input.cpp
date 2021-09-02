@@ -1,71 +1,108 @@
-///\file
 #include "input_output.h"
 
-/// Reads input until newline
 void clean_input(FILE* const infile_ptr)
 {
-    while(getc(infile_ptr) != '\n')
-        ;
+    char c;
+    do
+    {
+        c = getc(infile_ptr);
+    } while (c != '\n' && c != EOF);
 }
 
-/** \brief Reads line
-    \details Reads line, skips all whitespaces
-    \param [in] infile_ptr FILE* pointer to input
-    \param [out] line Pointer to target charachter array
-    \param maxline Max amount of charachters to read
-    \return Amount of read charachters
-*/
 size_t get_line(FILE* const infile_ptr, char line[], const size_t maxline)
 {
     assert(infile_ptr);
     assert(line);
 
-    size_t i = 0;
-    while(i < maxline - 1)
+    size_t curr_len = 0;
+    while(true)
     {
-        char c = getc(infile_ptr);
+        if(curr_len == maxline - 1) //check for overflow
+        {
+            clean_input(infile_ptr);
+            break;
+        }
 
-        if(c == '\n' || c == EOF)
+        char ch = getc(infile_ptr);
+
+        if(ch == '\n' || ch == EOF) //check for end of line or EOF
             break;
 
-        if(!isspace(c))
+        if(!isspace(ch)) //skips whitespaces
         {
-            line[i] = c;
-            i++;
+            line[curr_len] = ch;
+            curr_len++;
         }
     }
-    line[i] = '\0';
+    line[curr_len] = '\0'; //c-style string
 
-    return i;
+    return curr_len;
 }
 
-/** \brief Reads coefficients of equation
-    \details Requested format: (double) (double) (double)
-    \param [in] ifile_ptr FILE* pointer to input
-    \param [out] coeffs Provides writing coeffs of equation
-    \return Returns true if succeed and false otherwise
-*/
-bool get_coeffs(FILE* const infile_ptr, Equation_coeffs* coeffs)
+MsgType fscan_buf(FILE* const infile_ptr, char buf[], const size_t maxsize)
+{
+    size_t i = 0;
+    char c = 0;
+
+    while(fscanf(infile_ptr, "%c", &c) && isspace(c))
+        ;
+    ungetc(c, infile_ptr);
+
+    while(fscanf(infile_ptr, "%c", &c) && !isspace(c)) {
+        if(i == maxsize+1)
+            return MsgType::BUFF_OVRFLW;
+
+        buf[i] = c;
+        i++;
+    }
+
+    ungetc(c, infile_ptr);
+
+    buf[i] = EOF;
+
+    return MsgType::NOMSG;
+}
+
+MsgType get_coeffs(FILE* const infile_ptr, Equation_coeffs* coeffs)
 {
     assert(infile_ptr);
     assert(coeffs);
 
-    for(int i = coeffs->n_coeffs - 1; i >= 0; i--)
+    char buf[MAX_BUFFER_SIZE];
+
+    for(int i = coeffs->n_coeffs - 1; i >= 0; i--) //size_t is unsigned
     {
-        if(fscanf(infile_ptr, "%lf", &(coeffs->arr[i])) != 1)
+        if(fscan_buf(infile_ptr, buf, MAX_NUMBER_SIZE) == MsgType::BUFF_OVRFLW)
         {
             clean_input(infile_ptr);
 
-            return false;
+            return MsgType::BUFF_OVRFLW;
         }
+
+        double temp = 0;
+
+        if(sscanf(buf, "%lf", &temp) != 1)
+        {
+            clean_input(infile_ptr);
+
+            return MsgType::BAD_COEFF;
+        }
+        if(!isfinite(temp))
+        {
+            clean_input(infile_ptr);
+
+            return MsgType::NOT_FINITE_COEFF;
+        }
+
+        coeffs->arr[i] = temp;
     }
 
     if(getc(infile_ptr) != '\n')
     {
         clean_input(infile_ptr);
 
-        return false;
+        return MsgType::BAD_COEFF;
     }
 
-    return true;
+    return MsgType::NOMSG;
 }
