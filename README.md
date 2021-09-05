@@ -14,8 +14,3 @@
      For equation ax2 + bx + c = 0 enter 'a b c'.
      Example: 3x2 - 4 = 0 enter '3 0 -4'.
     
-#### Author: Futherus
-
-#### Version: 0.1
-
-#### Release date: 02.09.2021
