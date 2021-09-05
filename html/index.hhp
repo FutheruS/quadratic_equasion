@@ -1,0 +1,49 @@
+[OPTIONS]
+Compatibility=1.1
+Full-text search=Yes
+Contents file=index.hhc
+Default Window=main
+Default topic=index.html
+Index file=index.hhk
+Language=0x409 English (United States)
+Title=QEsol
+
+[WINDOWS]
+main="QEsol","index.hhc","index.hhk","index.html","index.html",,,,,0x23520,,0x10387e,,,,,,,,0
+
+[FILES]
+_equation_8h.html
+_equation_8h_source.html
+_u_i_8h.html
+_u_i_8h_source.html
+annotated.html
+classes.html
+dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html
+dir_d44c64559bbebec7f509842c48db8b23.html
+files.html
+globals.html
+globals_enum.html
+globals_eval.html
+globals_func.html
+globals_vars.html
+index.html
+input__output_8h.html
+input__output_8h_source.html
+solve_8h.html
+solve_8h_source.html
+struct_equation__coeffs.html
+struct_equation__roots.html
+tests_8h.html
+tests_8h_source.html
+bc_s.png
+bdwn.png
+closed.png
+nav_f.png
+nav_h.png
+open.png
+sync_off.png
+sync_on.png
+tab_a.png
+tab_b.png
+tab_h.png
+tab_s.png
