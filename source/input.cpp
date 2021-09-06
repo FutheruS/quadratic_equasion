@@ -48,7 +48,7 @@ MsgType fscan_buf(FILE* const infile_ptr, char buf[], const size_t maxsize)
         ;
     ungetc(c, infile_ptr);
 
-    while(fscanf(infile_ptr, "%c", &c) && !isspace(c)) {
+    while(fscanf(infile_ptr, "%c", &c) && !isspace(c) && isdigit(c)) {
         if(i == maxsize+1)
             return MsgType::BUFF_OVRFLW;
 
@@ -79,22 +79,23 @@ MsgType get_coeffs(FILE* const infile_ptr, Equation_coeffs* coeffs)
             return MsgType::BUFF_OVRFLW;
         }
 
-        double temp = 0;
+        double temp_coeff = 0;
 
-        if(sscanf(buf, "%lf", &temp) != 1)
+        if(sscanf(buf, "%lf", &temp_coeff) != 1)
         {
             clean_input(infile_ptr);
 
             return MsgType::BAD_COEFF;
         }
-        if(!isfinite(temp))
+
+        if(!isfinite(temp_coeff))
         {
             clean_input(infile_ptr);
 
             return MsgType::NOT_FINITE_COEFF;
         }
 
-        coeffs->arr[i] = temp;
+        coeffs->arr[i] = temp_coeff;
     }
 
     if(getc(infile_ptr) != '\n')
